@@ -31,20 +31,40 @@ class UIController():
 
         hElem = width // 6 - 32
         vElem = height // 6 - 32
-        adj = height // 12
-        top_adj = adj
-        bottom_adj = adj * 2
+
+        vAdj = height // 12
+        hAdj = width // 12
+
+        top_adj = vAdj
+        bottom_adj = vAdj * 2
+        left_adj = hAdj
+        right_adj = hAdj
 
         if self.pos == 0:
-            self.target.image.move(hElem, vElem + top_adj)
+            self.target.image.move(
+                hElem + left_adj, 
+                vElem + top_adj
+            )
         elif self.pos == 1:
-            self.target.image.move(width - hElem, vElem + top_adj)
+            self.target.image.move(
+                width - (hElem + right_adj), 
+                vElem + top_adj
+            )
         elif self.pos == 2:
-            self.target.image.move(width - hElem, height - vElem - bottom_adj)
+            self.target.image.move(
+                width - (hElem + right_adj), 
+                height - vElem - bottom_adj
+            )
         elif self.pos == 3:
-            self.target.image.move(hElem, height - vElem - bottom_adj)
+            self.target.image.move(
+                hElem + left_adj, 
+                height - vElem - bottom_adj
+            )
         else:
-            self.target.image.move(width // 2 - 32, (height - bottom_adj) // 2 + top_adj - 32)
+            self.target.image.move(
+                width // 2 - 32, 
+                (height - bottom_adj) // 2 + top_adj - 32
+            )
 
     def reset_window(self):
         for widget in self.target.widgets.values():
@@ -88,7 +108,7 @@ class Experiment:
         self.phase = ExperimentPhase.STAND_BY
 
         self.controller = UIController(ui)
-        self.controller.target.onKeyPressed.append(self.subject_reacted)
+        self.controller.target.onKeyReleased.append(self.subject_reacted)
         self.controller.target.onTimeout.append(lambda: print(self.phase)) 
         self.controller.target.onTimeout.append(self.show_next)
         self.controller.target.onTimeout.append(self.end_test_set)
@@ -190,7 +210,7 @@ class Experiment:
     def end_experiment(self):
         if self.phase == ExperimentPhase.EXPERIMENT_ENDED:
             self.controller.reset_window()
-            self.controller.target.onKeyPressed.remove(self.subject_reacted)
+            self.controller.target.onKeyReleased.remove(self.subject_reacted)
             self.controller.target.onTimeout.remove(self.show_next)
 
 

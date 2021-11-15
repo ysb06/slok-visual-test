@@ -57,7 +57,7 @@ class MainWindow(QWidget):
         self.setLayout(hlayout)
 
         # 마무리
-        self.onKeyPressed: List[Callable[[QKeyEvent], None]] = []
+        self.onKeyReleased: List[Callable[[QKeyEvent], None]] = []
         self.onTimeout: List[Callable] = []
         self.initializeStyle()
         self.show()
@@ -79,8 +79,8 @@ class MainWindow(QWidget):
         if name != '':
             test_manager.start_experiment(self, name)
     
-    def keyPressEvent(self, a0: QKeyEvent) -> None:
-        for callback in self.onKeyPressed:
+    def keyReleaseEvent(self, a0: QKeyEvent) -> None:
+        for callback in self.onKeyReleased:
             callback(a0)
     
     def timeout(self):
