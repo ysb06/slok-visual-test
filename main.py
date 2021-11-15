@@ -17,7 +17,7 @@ class MainWindow(QWidget):
 
         self.setWindowTitle('Visual Tester')
         self.move(0, 0)
-        self.resize(screen_rect.width() // 2, screen_rect.height() // 2)
+        self.resize(screen_rect.width(), screen_rect.height())
         self.setWindowFlags(Qt.FramelessWindowHint)
         
         # 이미지 표시기 초기화

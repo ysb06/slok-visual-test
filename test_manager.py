@@ -31,17 +31,20 @@ class UIController():
 
         hElem = width // 6 - 32
         vElem = height // 6 - 32
+        adj = height // 12
+        top_adj = adj
+        bottom_adj = adj * 2
 
         if self.pos == 0:
-            self.target.image.move(hElem, vElem)
+            self.target.image.move(hElem, vElem + top_adj)
         elif self.pos == 1:
-            self.target.image.move(width - hElem, vElem)
+            self.target.image.move(width - hElem, vElem + top_adj)
         elif self.pos == 2:
-            self.target.image.move(width - hElem, height - vElem)
+            self.target.image.move(width - hElem, height - vElem - bottom_adj)
         elif self.pos == 3:
-            self.target.image.move(hElem, height - vElem)
+            self.target.image.move(hElem, height - vElem - bottom_adj)
         else:
-            self.target.image.move(width // 2 - 32, height // 2 - 32)
+            self.target.image.move(width // 2 - 32, (height - bottom_adj) // 2 + top_adj - 32)
 
     def reset_window(self):
         for widget in self.target.widgets.values():
