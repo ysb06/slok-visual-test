@@ -109,7 +109,6 @@ class Experiment:
 
         self.controller = UIController(ui)
         self.controller.target.onKeyReleased.append(self.subject_reacted)
-        self.controller.target.onTimeout.append(lambda: print(self.phase)) 
         self.controller.target.onTimeout.append(self.show_next)
         self.controller.target.onTimeout.append(self.end_test_set)
         self.controller.target.onTimeout.append(self.reset_experiment)
@@ -186,7 +185,6 @@ class Experiment:
 
     def end_test_set(self):
         if self.phase == ExperimentPhase.TEST_SET_ENDED:
-            print('Test prepairing...')
             self.controller.target.timer.stop()
 
             self.controller.set_start_guide(True)

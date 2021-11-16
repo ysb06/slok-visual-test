@@ -1,6 +1,6 @@
 import sys
 from typing import Dict, List, Callable
-from PyQt5.QtGui import QKeyEvent, QPixmap
+from PyQt5.QtGui import QKeyEvent, QPixmap, QMouseEvent
 
 import yaml
 from PyQt5.QtCore import QRect, QTimer, Qt
@@ -19,7 +19,7 @@ class MainWindow(QWidget):
         self.move(0, 0)
         self.resize(screen_rect.width(), screen_rect.height())
         self.setWindowFlags(Qt.FramelessWindowHint)
-        
+
         # 이미지 표시기 초기화
         self.image = QLabel('Blank Image', self)
         self.image.setStyleSheet('color: white; font-size: 36pt')
@@ -31,7 +31,8 @@ class MainWindow(QWidget):
         self.guide_label = QLabel('Ready', self)
         self.guide_label.setStyleSheet('font-size: 24pt; color: white')
         self.guide_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.guide_label.setGeometry(self.width() // 2 - 90, self.height() // 2 - 100, 180, 64)
+        self.guide_label.setGeometry(
+            self.width() // 2 - 90, self.height() // 2 - 100, 180, 64)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timeout)
@@ -42,7 +43,7 @@ class MainWindow(QWidget):
         self.widgets['ExpNameLineEdit'].setPlaceholderText('Input name...')
         self.widgets['SubmitButton'] = QPushButton('Start', self)
         self.widgets['SubmitButton'].clicked.connect(self.submit)
-        
+
         vlayout = QVBoxLayout()
         vlayout.addStretch(1)
         for widget in self.widgets.values():
@@ -61,7 +62,7 @@ class MainWindow(QWidget):
         self.onTimeout: List[Callable] = []
         self.initializeStyle()
         self.show()
-    
+
     def initializeStyle(self):
         with open('style.yaml') as file:
             style_raw = yaml.load(file, Loader=yaml.FullLoader)
@@ -71,23 +72,32 @@ class MainWindow(QWidget):
 
             widget_styles: Dict[str, Dict] = style_raw['widgets']
             for widget, style in widget_styles.items():
-                style_text = '; '.join([f'{attr}: {value}' for attr, value in style.items()])
+                style_text = '; '.join(
+                    [f'{attr}: {value}' for attr, value in style.items()])
                 self.widgets[widget].setStyleSheet(style_text)
 
     def submit(self):
         name = self.widgets['ExpNameLineEdit'].text()
         if name != '':
             test_manager.start_experiment(self, name)
-    
+
     def keyReleaseEvent(self, a0: QKeyEvent) -> None:
         for callback in self.onKeyReleased:
             callback(a0)
-    
+
     def timeout(self):
         for callback in self.onTimeout:
             if callback() == True:
                 return
+    
+    def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
+        for callback in self.onKeyReleased:
+            arg = FakeKeyEvent()    # 문제가 될 수 있는 부분, 수정 필요
+            callback(arg)
 
+class FakeKeyEvent:
+    def key(self):
+        return Qt.Key.Key_Return
 
 if __name__ == '__main__':
    app = QApplication(sys.argv)
