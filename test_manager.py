@@ -108,7 +108,7 @@ class Experiment:
         self.phase = ExperimentPhase.STAND_BY
 
         self.controller = UIController(ui)
-        self.controller.target.onKeyReleased.append(self.subject_reacted)
+        self.controller.target.onKeyPressed.append(self.subject_reacted)
         self.controller.target.onTimeout.append(self.show_next)
         self.controller.target.onTimeout.append(self.end_test_set)
         self.controller.target.onTimeout.append(self.reset_experiment)
@@ -208,7 +208,7 @@ class Experiment:
     def end_experiment(self):
         if self.phase == ExperimentPhase.EXPERIMENT_ENDED:
             self.controller.reset_window()
-            self.controller.target.onKeyReleased.remove(self.subject_reacted)
+            self.controller.target.onKeyPressed.remove(self.subject_reacted)
             self.controller.target.onTimeout.remove(self.show_next)
 
 

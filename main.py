@@ -3,11 +3,12 @@ from typing import Dict, List, Callable
 from PyQt5.QtGui import QKeyEvent, QPixmap, QMouseEvent
 
 import yaml
-from PyQt5.QtCore import QRect, QTimer, Qt
+from PyQt5.QtCore import QRect, QThread, QTimer, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLineEdit, QPushButton,
                              QVBoxLayout, QWidget)
 
 import test_manager
+import scaner.connector
 
 
 class MainWindow(QWidget):
@@ -22,7 +23,7 @@ class MainWindow(QWidget):
 
         # 이미지 표시기 초기화
         self.image = QLabel('Blank Image', self)
-        self.image.setStyleSheet('color: white; font-size: 36pt');
+        self.image.setStyleSheet('color: white; font-size: 36pt')
         self.image.move(0, 0)
         self.image.setVisible(False)
         self.image.setPixmap(QPixmap('images/circle.png').scaledToWidth(64))
@@ -57,9 +58,15 @@ class MainWindow(QWidget):
         self.main_layout = hlayout
         self.setLayout(hlayout)
 
+        # Scaner UDP Connector 초기화
+        self.scaner_connector = scaner.connector.QConnector(self, debug=True)
+        self.scaner_connector.onPress.connect(self.simulink_activated)
+        self.scaner_connector.activate()
+
         # 마무리
-        self.onKeyReleased: List[Callable[[QKeyEvent], None]] = []
+        self.onKeyPressed: List[Callable[[QKeyEvent], None]] = []
         self.onTimeout: List[Callable] = []
+        self.onUDPSwitchActivated: List[Callable] = []
         self.initializeStyle()
         self.show()
 
@@ -81,25 +88,37 @@ class MainWindow(QWidget):
         if name != '':
             test_manager.start_experiment(self, name)
 
-    def keyReleaseEvent(self, a0: QKeyEvent) -> None:
-        for callback in self.onKeyReleased:
-            callback(a0)
-
     def timeout(self):
         for callback in self.onTimeout:
             if callback() == True:
                 return
     
-    def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
-        for callback in self.onKeyReleased:
+    def keyPressEvent(self, a0: QKeyEvent) -> None:
+        for callback in self.onKeyPressed:
+            callback(a0)
+
+    def mousePressEvent(self, a0: QMouseEvent) -> None:
+        for callback in self.onKeyPressed:
             arg = FakeKeyEvent()    # 문제가 될 수 있는 부분, 수정 필요
             callback(arg)
+
+    def simulink_activated(self):
+        for callback in self.onKeyPressed:
+            arg = FakeKeyEvent()    # 문제가 될 수 있는 부분, 수정 필요
+            callback(arg)
+        pass
+
 
 class FakeKeyEvent:
     def key(self):
         return Qt.Key.Key_Return
 
+
 if __name__ == '__main__':
-   app = QApplication(sys.argv)
-   ex = MainWindow()
-   app.exec_()
+    app = QApplication(sys.argv)
+    ex = MainWindow()
+    app.exec_()
+
+    ex.scaner_connector.deactivate()
+
+    
