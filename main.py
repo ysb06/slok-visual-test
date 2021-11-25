@@ -22,7 +22,7 @@ class MainWindow(QWidget):
 
         # 이미지 표시기 초기화
         self.image = QLabel('Blank Image', self)
-        self.image.setStyleSheet('color: white; font-size: 36pt')
+        self.image.setStyleSheet('color: white; font-size: 36pt');
         self.image.move(0, 0)
         self.image.setVisible(False)
         self.image.setPixmap(QPixmap('images/circle.png').scaledToWidth(64))
