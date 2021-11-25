@@ -59,7 +59,7 @@ class MainWindow(QWidget):
         self.setLayout(hlayout)
 
         # Scaner UDP Connector 초기화
-        self.scaner_connector = scaner.connector.QConnector(self, debug=True)
+        self.scaner_connector = scaner.connector.QConnector(self)
         self.scaner_connector.onPress.connect(self.simulink_activated)
         self.scaner_connector.activate()
 
