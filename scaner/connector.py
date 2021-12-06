@@ -28,6 +28,7 @@ class QConnector(QThread):
 
     def deactivate(self) -> None:
         self.activated = False
+        self.wait()
 
     def run(self) -> None:
         prevKey = 0

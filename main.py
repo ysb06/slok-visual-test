@@ -106,7 +106,6 @@ class MainWindow(QWidget):
         for callback in self.onKeyPressed:
             arg = FakeKeyEvent()    # 문제가 될 수 있는 부분, 수정 필요
             callback(arg)
-        pass
 
 
 class FakeKeyEvent:
