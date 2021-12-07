@@ -31,22 +31,23 @@ class QConnector(QThread):
         self.wait()
 
     def run(self) -> None:
-        prevKey = 0
+        prevKey = False
 
         try:
             while self.activated:
                 data, addr = self.client_socket.recvfrom(1024)
-                key = struct.unpack('d', data[8:16])[0]
+                hm_key = struct.unpack('d', data[40:48])[0]
+                sw_key = struct.unpack('d', data[88:96])[0]
 
                 if self.debug:
-                    data_1 = struct.unpack('d', data[:8])[0]
-                    print(f'{addr}: 1: [{data_1}] 2: [{key}] ({time.time_ns()})', end='\r')
-                if prevKey == 0 and key == 1:
+                    data_1 = [struct.unpack('d', data[cursor - 8:cursor])[0] for cursor in range(8, len(data), 8)]
+                    print(f'{addr} ({time.time_ns()}): {data_1} [{hm_key}, {sw_key}]', end='\r')
+                if prevKey == False and (hm_key == 1 or sw_key == 1):
                     self.onPress.emit()
-                elif prevKey == 1 and key == 0:
+                elif prevKey and (hm_key == 0 or sw_key == 0):
                     self.onRelease.emit()
 
-                prevKey = key
+                prevKey = (hm_key == 1 or sw_key == 1)
         except socket.timeout as e:
             self.activated = False
             print('Check SCANeR state and restart this app.')

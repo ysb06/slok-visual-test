@@ -17,11 +17,11 @@ class MainWindow(QWidget):
         target = 0
         if desktop.screenCount() > 1:
             target = 1
-        target_monitor = desktop.screenGeometry(target)
+        self.target_monitor = desktop.screenGeometry(target)
 
         self.setWindowTitle('Visual Tester')
-        self.move(target_monitor.left(), target_monitor.top())
-        self.resize(width // 2, height // 2)
+        self.move(0, 0)
+        self.resize(width, height)
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.image = FlexibleCircle(self)
@@ -89,7 +89,7 @@ class MainWindowEvents:
         self.onKeyPress: List[Callable] = []
 
         # Scaner UDP Connector 초기화
-        self.scaner_connector = scaner.connector.QConnector(parent)
+        self.scaner_connector = scaner.connector.QConnector(parent, debug=True)
         self.scaner_connector.activate()
 
         self.parent.widgets['SubmitButton'].clicked.connect(self.submitEvent)
@@ -130,16 +130,20 @@ class FakeKeyEvent:
 
 
 class FlexibleCircle(QWidget):
-    def __init__(self, parent: MainWindow, radius: int = 50) -> None:
+    def __init__(self, parent: MainWindow, radius: int = 127) -> None:
         super().__init__(parent)
         self.color = QColor(255, 255, 255, 255)
         self.radius = 0
         self.setSize(radius)
-        self.setPosition(parent.width() // 2, parent.height() // 2)
+        self.setPosition(
+            parent.width() // 2, 
+            parent.height() // 2 - 200
+        )
         self.setVisible(False)
 
         self.blink_timer = QTimer()
         self.__blink_show = True
+        self.blink_timer.timeout.connect(self.blink)
     
     def setSize(self, radius: int):
         prev_radius = self.radius
@@ -155,28 +159,27 @@ class FlexibleCircle(QWidget):
         self.color.setAlpha(value)
 
     def setBlink(self, frequency: int):
+        self.blink_timer.stop()
+        self.__blink_show = True
+
         if frequency > 0:
             self.frequency = frequency
 
-            self.blink_timer = QTimer()
-            self.blink_timer.timeout.connect(self.blink)
             self.blink_timer.setInterval(int(1000 / frequency))
             self.blink_timer.start()    # circle 이미지 클래스로 코드를 옮길 것
-        else:
-            raise Exception('Frequency must be over 0')
-
-            
 
     def blink(self):
         if self.__blink_show:
-            self.setFixedSize(0, 0)
+            # self.setFixedSize(0, 0)
             self.__blink_show = False
         else:
-            self.setSize(self.radius)
+            # self.setSize(self.radius)
             self.__blink_show = True
+        
+        self.update()
 
     def draw(self):
-        if self.isVisible():
+        if self.isVisible() and self.__blink_show:
             painter = QPainter(self.parent())
             painter.setBrush(self.color)
             painter.drawEllipse(self.pos() + QPoint(self.radius, self.radius), self.radius, self.radius)

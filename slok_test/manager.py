@@ -30,12 +30,15 @@ class ExperimentType(Enum):
     BLINK = 3
 
 
-MAX_TEST_COUNT = 5
+MAX_TEST_COUNT = 10
 TEST_LIST = [
     ExperimentType.LUMINANCE,
     ExperimentType.SIZE,
     ExperimentType.BLINK
 ]
+# TEST_LIST = [
+#     ExperimentType.BLINK
+# ]
 LUMINANCE_TEST_SET = [63, 127, 191, 255]
 SIZE_TEST_SET = [64, 128, 256, 512, 720]
 BLINK_TEST_SET = [1, 2, 3]
@@ -132,6 +135,7 @@ class Experiment:
 
     def start_exp(self):
         self.controller.hide_all()
+        self.controller.move_window_to_target()
 
         self.print_event()
 

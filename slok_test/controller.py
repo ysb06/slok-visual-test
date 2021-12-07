@@ -7,6 +7,12 @@ class UIController:
         self.target = target
         target.events.onTimeout.append(self.end_wait)
     
+    def move_window_to_target(self):
+        self.target.move(
+            self.target.target_monitor.left(),
+            self.target.target_monitor.top()
+        )
+
     def setInputFormVisible(self, visible: bool):
         for widget in self.target.widgets.values():
             widget.setVisible(visible)
@@ -34,7 +40,7 @@ class UIController:
     def end_wait(self):
         self.target.timer.stop()
     
-    def show_image(self, size: int = 50, brightness: int = 255, frequency: float = 0):
+    def show_image(self, size: int = 255, brightness: int = 255, frequency: float = 0):
         self.target.image.setVisible(True)
         self.target.image.setSize(size)
         self.target.image.setBrightness(brightness)
@@ -43,7 +49,8 @@ class UIController:
         
         self.target.image.update()
 
-
     def dispose(self):
         self.target.events.onKeyPress.clear()
         self.target.events.onTimeout.clear()
+        
+        self.target.move(0, 0)
