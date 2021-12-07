@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QTimer
 from slok_test.window import MainWindow
 from random import randrange
 
@@ -33,13 +34,16 @@ class UIController:
     def end_wait(self):
         self.target.timer.stop()
     
-    def show_image(self, size: int = 50, brightness: int = 255, frequency = 0):
+    def show_image(self, size: int = 50, brightness: int = 255, frequency: float = 0):
         self.target.image.setVisible(True)
         self.target.image.setSize(size)
         self.target.image.setBrightness(brightness)
+
+        self.target.image.setBlink(frequency)
         
         self.target.image.update()
-    
+
+
     def dispose(self):
         self.target.events.onKeyPress.clear()
         self.target.events.onTimeout.clear()

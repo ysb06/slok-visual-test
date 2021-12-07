@@ -2,7 +2,7 @@ from typing import Dict, List, Callable, Set
 from PyQt5.QtGui import QCloseEvent, QColor, QKeyEvent, QPaintEvent, QPainter, QPen, QPixmap, QMouseEvent
 
 import yaml
-from PyQt5.QtCore import QPoint, QRect, QTimer, Qt
+from PyQt5.QtCore import QPoint, QRect, QTime, QTimer, Qt
 from PyQt5.QtWidgets import (
     QDesktopWidget, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 )
@@ -21,7 +21,7 @@ class MainWindow(QWidget):
 
         self.setWindowTitle('Visual Tester')
         self.move(target_monitor.left(), target_monitor.top())
-        self.resize(width, height)
+        self.resize(width // 2, height // 2)
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.image = FlexibleCircle(self)
@@ -100,8 +100,9 @@ class MainWindowEvents:
 
     def submitEvent(self):
         text = self.parent.widgets['ExpNameLineEdit'].text()
-        for callback in self.onSubmit:
-            callback(self.parent, text)
+        if text != '':
+            for callback in self.onSubmit:
+                callback(self.parent, text)
 
     def timeoutEvent(self):
         for callback in self.onTimeout:
@@ -136,6 +137,9 @@ class FlexibleCircle(QWidget):
         self.setSize(radius)
         self.setPosition(parent.width() // 2, parent.height() // 2)
         self.setVisible(False)
+
+        self.blink_timer = QTimer()
+        self.__blink_show = True
     
     def setSize(self, radius: int):
         prev_radius = self.radius
@@ -149,6 +153,27 @@ class FlexibleCircle(QWidget):
 
     def setBrightness(self, value: int):
         self.color.setAlpha(value)
+
+    def setBlink(self, frequency: int):
+        if frequency > 0:
+            self.frequency = frequency
+
+            self.blink_timer = QTimer()
+            self.blink_timer.timeout.connect(self.blink)
+            self.blink_timer.setInterval(int(1000 / frequency))
+            self.blink_timer.start()    # circle 이미지 클래스로 코드를 옮길 것
+        else:
+            raise Exception('Frequency must be over 0')
+
+            
+
+    def blink(self):
+        if self.__blink_show:
+            self.setFixedSize(0, 0)
+            self.__blink_show = False
+        else:
+            self.setSize(self.radius)
+            self.__blink_show = True
 
     def draw(self):
         if self.isVisible():
