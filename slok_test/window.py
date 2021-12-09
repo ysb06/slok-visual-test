@@ -89,7 +89,7 @@ class MainWindowEvents:
         self.onKeyPress: List[Callable] = []
 
         # Scaner UDP Connector 초기화
-        self.scaner_connector = scaner.connector.QConnector(parent, debug=True)
+        self.scaner_connector = scaner.connector.QConnector(parent, debug=False)
         self.scaner_connector.activate()
 
         self.parent.widgets['SubmitButton'].clicked.connect(self.submitEvent)
