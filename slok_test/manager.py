@@ -40,7 +40,7 @@ TEST_LIST = [
 #     ExperimentType.BLINK
 # ]
 LUMINANCE_TEST_SET = [63, 127, 191, 255]
-SIZE_TEST_SET = [64, 128, 256, 512, 720]
+SIZE_TEST_SET = [32, 73, 114, 196]
 BLINK_TEST_SET = [1, 2, 3]
 
 STAND_BY_TIME = 1000 * 7
@@ -67,6 +67,8 @@ class Experiment:
 
         self.start_time = 0
 
+        self.test_value: Union[int, None] = None
+
         # -----
         window.events.onTimeout.append(self.onTimeout)
         window.events.onKeyPress.append(self.receive_input)
@@ -80,7 +82,7 @@ class Experiment:
         self.start_exp()
 
     def print_event(self, _=None):
-        print(self.current_test_type, ':', self.state)
+        print(self.current_test_type, f'[{self.test_value}]', ':', self.state)
 
     def onTimeout(self):
         if self.state in self.timeout_actions:
@@ -175,12 +177,14 @@ class Experiment:
             self.controller.start_timer(1000)
 
     def show_cue(self):
+        self.test_value = self.test_set.pop()
+
         if self.current_test_type == ExperimentType.LUMINANCE:
-            self.controller.show_image(brightness=self.test_set.pop())
+            self.controller.show_image(brightness=self.test_value)
         elif self.current_test_type == ExperimentType.SIZE:
-            self.controller.show_image(size=self.test_set.pop())
+            self.controller.show_image(size=self.test_value)
         elif self.current_test_type == ExperimentType.BLINK:
-            self.controller.show_image(frequency=self.test_set.pop())
+            self.controller.show_image(frequency=self.test_value)
         else:
             self.controller.show_image()
 
@@ -201,6 +205,7 @@ class Experiment:
 
         self.info.try_count += 1
         self.state = ExperimentPhase.SUBJECT_REACTED
+        self.test_value = None
 
         self.controller.start_timer(3000)
 

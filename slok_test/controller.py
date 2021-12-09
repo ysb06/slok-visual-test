@@ -40,7 +40,7 @@ class UIController:
     def end_wait(self):
         self.target.timer.stop()
     
-    def show_image(self, size: int = 255, brightness: int = 255, frequency: float = 0):
+    def show_image(self, size: int = 256, brightness: int = 255, frequency: float = 0):
         self.target.image.setVisible(True)
         self.target.image.setSize(size)
         self.target.image.setBrightness(brightness)
