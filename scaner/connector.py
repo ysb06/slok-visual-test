@@ -3,7 +3,7 @@ import struct
 import threading
 from typing import Callable, List
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, Qt, pyqtSignal
 import time
 
 
@@ -42,10 +42,11 @@ class QConnector(QThread):
                 if self.debug:
                     data_1 = [struct.unpack('d', data[cursor - 8:cursor])[0] for cursor in range(8, len(data), 8)]
                     print(f'{addr} ({time.time_ns()}): {data_1} [{hm_key}, {sw_key}]', end='\r')
+
                 if prevKey == False and (hm_key == 1 or sw_key == 1):
-                    self.onPress.emit()
+                    self.onPress.emit(Qt.Key.Key_Mode_switch if hm_key == 1 else Qt.Key.Key_6)
                 elif prevKey and (hm_key == 0 or sw_key == 0):
-                    self.onRelease.emit()
+                    self.onRelease.emit(Qt.Key.Key_Mode_switch if hm_key == 0 else Qt.Key.Key_6)
 
                 prevKey = (hm_key == 1 or sw_key == 1)
         except socket.timeout as e:

@@ -47,8 +47,11 @@ STAND_BY_TIME = 1000 * 7
 STAND_BY_TIME_RANDOM_ADJUSTMENT = 1000 * 3
 
 
-def initialize_experiment(sender: MainWindow, text: str):
-    Experiment(sender, text)
+def initialize_experiment(sender: MainWindow, text: str='None', mode: str='Standard'):
+    if mode == 'Standard':
+        Experiment(sender, text)
+    else:
+        Survey(sender)
 
 
 class Experiment:
@@ -209,6 +212,28 @@ class Experiment:
 
         self.controller.start_timer(3000)
 
+    def finalize_experiment(self, arg = None):
+        self.controller.hide_all()
+        self.controller.setInputFormVisible(True)
+        self.controller.dispose()
+        del self.controller
+        del self
+
+class Survey:
+    def __init__(self, window: MainWindow) -> None:
+        self.controller = UIController(window)
+
+        self.binded_key_actions: Dict[Qt.Key, Callable[[Qt.Key], None]] = {}
+        self.binded_key_actions[Qt.Key.Key_Escape] = self.finalize_experiment
+
+        window.events.onKeyPress.append(self.receive_input)
+    
+    def receive_input(self, e: Union[QKeyEvent, FakeKeyEvent]):
+        input_key: Qt.Key = e.key()
+
+        if input_key in self.binded_key_actions:
+            self.binded_key_actions[input_key](input_key)
+    
     def finalize_experiment(self, arg = None):
         self.controller.hide_all()
         self.controller.setInputFormVisible(True)

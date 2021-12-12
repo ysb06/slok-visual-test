@@ -13,4 +13,9 @@ widgets:
     font-size: 24pt
     height: 64px
   
+  ManualButton:
+    background-color: white
+    font-size: 24pt
+    width: 96px
+    height: 64px
   

@@ -40,6 +40,7 @@ class MainWindow(QWidget):
         self.widgets['ExpNameLineEdit'] = QLineEdit(self)
         self.widgets['ExpNameLineEdit'].setPlaceholderText('Input name...')
         self.widgets['SubmitButton'] = QPushButton('Start', self)
+        self.widgets['ManualButton'] = QPushButton('Manual Mode', self)
 
         vlayout = QVBoxLayout()
         vlayout.addStretch(1)
@@ -93,6 +94,7 @@ class MainWindowEvents:
         self.scaner_connector.activate()
 
         self.parent.widgets['SubmitButton'].clicked.connect(self.submitEvent)
+        self.parent.widgets['ManualButton'].clicked.connect(self.clickManualButtonEvent)
         self.parent.timer.timeout.connect(self.timeoutEvent)
         self.parent.keyPressEvent = self.keyPressEvent
         self.parent.mousePressEvent = self.mousePressEvent
@@ -102,7 +104,11 @@ class MainWindowEvents:
         text = self.parent.widgets['ExpNameLineEdit'].text()
         if text != '':
             for callback in self.onSubmit:
-                callback(self.parent, text)
+                callback(self.parent, text=text)
+    
+    def clickManualButtonEvent(self):
+        for callback in self.onSubmit:
+            callback(self.parent, mode='Survey')
 
     def timeoutEvent(self):
         for callback in self.onTimeout:
@@ -118,15 +124,18 @@ class MainWindowEvents:
             arg = FakeKeyEvent()    # 문제가 될 수 있는 부분, 수정 필요
             callback(arg)
 
-    def simulinkActivatedEvent(self):
+    def simulinkActivatedEvent(self, key: Qt.Key):
         for callback in self.onKeyPress:
-            arg = FakeKeyEvent()    # 문제가 될 수 있는 부분, 수정 필요
+            arg = FakeKeyEvent(key)    # 문제가 될 수 있는 부분, 수정 필요
             callback(arg)
 
 
 class FakeKeyEvent:
+    def __init__(self, key=Qt.Key.Key_End) -> None:
+        self.value = key
+        
     def key(self):
-        return Qt.Key.Key_End
+        return self.value
 
 
 class FlexibleCircle(QWidget):
@@ -190,3 +199,25 @@ class FlexibleCircle(QWidget):
         # self.setVisible(False)
         # self.setPixmap(QPixmap('images/circle.png').scaledToWidth(64))
         # self.setGeometry(QRect(0, 0, 64, 64))
+
+
+class ServeyWindow(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.widgets: Dict[str, QWidget] = {}
+        self.widgets['VarTextbox'] = QLineEdit(self)
+        self.widgets['VarTextbox'].setPlaceholderText('Input variables...')
+        self.widgets[''] = QPushButton('Start', self)
+        self.widgets[''] = QPushButton('Manual Mode', self)
+
+        vlayout = QVBoxLayout()
+        vlayout.addStretch(1)
+        for widget in self.widgets.values():
+            vlayout.addWidget(widget)
+            vlayout.addSpacing(16)
+        vlayout.addStretch(1)
+        hlayout = QHBoxLayout()
+        hlayout.addStretch(2)
+        hlayout.addLayout(vlayout)
+        hlayout.addStretch(2)
