@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     screen_rect = app.desktop().screenGeometry()
     width, height = screen_rect.width(), screen_rect.height()
-    ex = MainWindow(width, height)
-    ex.events.onSubmit.append(initialize_experiment)
+    exp = MainWindow(width, height)
+    exp.events.onSubmit.append(initialize_experiment)
 
     app.exec_()

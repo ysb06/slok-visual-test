@@ -30,7 +30,7 @@ class ExperimentType(Enum):
     BLINK = 3
 
 
-MAX_TEST_COUNT = 10
+MAX_TEST_COUNT = 4
 TEST_LIST = [
     ExperimentType.LUMINANCE,
     ExperimentType.SIZE,
@@ -39,8 +39,8 @@ TEST_LIST = [
 # TEST_LIST = [
 #     ExperimentType.BLINK
 # ]
-LUMINANCE_TEST_SET = [63, 127, 191, 255]
-SIZE_TEST_SET = [32, 73, 114, 196]
+LUMINANCE_TEST_SET = [15, 95, 175, 255]
+SIZE_TEST_SET = [32, 64, 128, 256]
 BLINK_TEST_SET = [1, 2, 3]
 
 STAND_BY_TIME = 1000 * 7
@@ -114,6 +114,7 @@ class Experiment:
         
         var_list = var_list[:MAX_TEST_COUNT]
         shuffle(var_list)
+        print(var_list)
 
         return deque(var_list)
 
@@ -164,7 +165,7 @@ class Experiment:
 
     def soft_reset_test_set(self):
         self.controller.hide_all()
-        self.controller.setGuideText(True, 'Ready')
+        self.controller.setGuideText(True, '')
 
         self.info.try_count = 0
         self.state = ExperimentPhase.TEST_SET_READY
@@ -183,9 +184,9 @@ class Experiment:
         self.test_value = self.test_set.pop()
 
         if self.current_test_type == ExperimentType.LUMINANCE:
-            self.controller.show_image(brightness=self.test_value)
+            self.controller.show_image(brightness=self.test_value, size=128)
         elif self.current_test_type == ExperimentType.SIZE:
-            self.controller.show_image(size=self.test_value)
+            self.controller.show_image(size=self.test_value, brightness=127)
         elif self.current_test_type == ExperimentType.BLINK:
             self.controller.show_image(frequency=self.test_value)
         else:
@@ -204,7 +205,7 @@ class Experiment:
         record(self.info)
 
         self.controller.hide_all()
-        self.controller.setGuideText(True, 'Good')
+        self.controller.setGuideText(True, '')
 
         self.info.try_count += 1
         self.state = ExperimentPhase.SUBJECT_REACTED
