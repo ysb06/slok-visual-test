@@ -1,15 +1,17 @@
+import time
+from collections import deque
+from enum import Enum
 from random import shuffle
 from typing import Callable, Dict, Union
+
 from PyQt5.QtCore import Qt
-
 from PyQt5.QtGui import QKeyEvent
-from slok_test.controller import UIController
-from slok_test.window import FakeKeyEvent, MainWindow
-from enum import Enum
-from collections import deque
-
 from test_recorder import ExperimentInfo, record
-import time
+
+from slok_test.controller import UIController
+from slok_test.exp_setting import *
+from slok_test.survey_window import SurveyWindow
+from slok_test.window import FakeKeyEvent, MainWindow
 
 
 class ExperimentPhase(Enum):
@@ -23,34 +25,11 @@ class ExperimentPhase(Enum):
     EXPERIMENT_ENDED = 7
 
 
-class ExperimentType(Enum):
-    NONE = 0
-    LUMINANCE = 1
-    SIZE = 2
-    BLINK = 3
-
-
-MAX_TEST_COUNT = 4
-TEST_LIST = [
-    ExperimentType.LUMINANCE,
-    ExperimentType.SIZE,
-    ExperimentType.BLINK
-]
-# TEST_LIST = [
-#     ExperimentType.BLINK
-# ]
-LUMINANCE_TEST_SET = [15, 95, 175, 255]
-SIZE_TEST_SET = [32, 64, 128, 256]
-BLINK_TEST_SET = [1, 2, 3]
-
-STAND_BY_TIME = 1000 * 7
-STAND_BY_TIME_RANDOM_ADJUSTMENT = 1000 * 3
-
-
-def initialize_experiment(sender: MainWindow, text: str='None', mode: str='Standard'):
+def initialize_experiment(sender: MainWindow, text: str = 'None', mode: str = 'Standard'):
     if mode == 'Standard':
         Experiment(sender, text)
     else:
+        print('Survey Mode')
         Survey(sender)
 
 
@@ -99,25 +78,27 @@ class Experiment:
         else:
             if self.state in self.anykey_actions:
                 self.anykey_actions[self.state]()
-    
+
     def generate_exp_var(self, exp_type: ExperimentType):
         var_list = []
 
         if exp_type == ExperimentType.LUMINANCE:
-            var_list = LUMINANCE_TEST_SET * (MAX_TEST_COUNT // len(LUMINANCE_TEST_SET) + 1)
+            var_list = LUMINANCE_TEST_SET * \
+                (MAX_TEST_COUNT // len(LUMINANCE_TEST_SET) + 1)
         elif exp_type == ExperimentType.SIZE:
-            var_list = SIZE_TEST_SET * (MAX_TEST_COUNT // len(SIZE_TEST_SET) + 1)
+            var_list = SIZE_TEST_SET * \
+                (MAX_TEST_COUNT // len(SIZE_TEST_SET) + 1)
         elif exp_type == ExperimentType.BLINK:
-            var_list = BLINK_TEST_SET * (MAX_TEST_COUNT // len(BLINK_TEST_SET) + 1)
+            var_list = BLINK_TEST_SET * \
+                (MAX_TEST_COUNT // len(BLINK_TEST_SET) + 1)
         else:
             raise Exception('Not supported type')
-        
+
         var_list = var_list[:MAX_TEST_COUNT]
         shuffle(var_list)
-        print(var_list)
+        print(var_list, '<-')
 
         return deque(var_list)
-
 
     def define_actions(self):
         # 실험 순서는 self.test_order에 정의
@@ -175,7 +156,8 @@ class Experiment:
 
         if self.info.try_count < MAX_TEST_COUNT:
             self.state = ExperimentPhase.STAND_BY
-            self.controller.start_timer(STAND_BY_TIME, STAND_BY_TIME_RANDOM_ADJUSTMENT)
+            self.controller.start_timer(
+                STAND_BY_TIME, STAND_BY_TIME_RANDOM_ADJUSTMENT)
         else:
             self.state = ExperimentPhase.TEST_SET_ENDED
             self.controller.start_timer(1000)
@@ -183,14 +165,8 @@ class Experiment:
     def show_cue(self):
         self.test_value = self.test_set.pop()
 
-        if self.current_test_type == ExperimentType.LUMINANCE:
-            self.controller.show_image(brightness=self.test_value, size=128)
-        elif self.current_test_type == ExperimentType.SIZE:
-            self.controller.show_image(size=self.test_value, brightness=127)
-        elif self.current_test_type == ExperimentType.BLINK:
-            self.controller.show_image(frequency=self.test_value)
-        else:
-            self.controller.show_image()
+        self.controller.show_image_by_type(
+            self.current_test_type, self.test_value)
 
         self.start_time = time.time_ns()
         self.state = ExperimentPhase.SHOWING_IMAGE
@@ -201,7 +177,8 @@ class Experiment:
         interval_time = end_time - self.start_time
         self.info.record_time = end_time
         self.info.last_reaction_time = interval_time
-        print(f"Exp {self.info.exp_count} - Try {self.info.try_count}: {interval_time / 1000000000} sec")
+        print(
+            f"Exp {self.info.exp_count} - Try {self.info.try_count}: {interval_time / 1000000000} sec")
         record(self.info)
 
         self.controller.hide_all()
@@ -213,29 +190,36 @@ class Experiment:
 
         self.controller.start_timer(3000)
 
-    def finalize_experiment(self, arg = None):
+    def finalize_experiment(self, arg=None):
         self.controller.hide_all()
         self.controller.setInputFormVisible(True)
         self.controller.dispose()
         del self.controller
         del self
 
+
 class Survey:
     def __init__(self, window: MainWindow) -> None:
         self.controller = UIController(window)
+        self.subwindow = SurveyWindow(
+            self.controller,
+            (
+                TEST_LIST,
+                [
+                    LUMINANCE_TEST_SET,
+                    SIZE_TEST_SET,
+                    BLINK_TEST_SET
+                ]
+            )
+        )
+        self.subwindow.show()
+        self.subwindow.onClose.append(self.finalize_experiment)
 
-        self.binded_key_actions: Dict[Qt.Key, Callable[[Qt.Key], None]] = {}
-        self.binded_key_actions[Qt.Key.Key_Escape] = self.finalize_experiment
+        # 실험과 같은 초기화
+        self.controller.hide_all()
+        self.controller.move_window_to_target()
 
-        window.events.onKeyPress.append(self.receive_input)
-    
-    def receive_input(self, e: Union[QKeyEvent, FakeKeyEvent]):
-        input_key: Qt.Key = e.key()
-
-        if input_key in self.binded_key_actions:
-            self.binded_key_actions[input_key](input_key)
-    
-    def finalize_experiment(self, arg = None):
+    def finalize_experiment(self, arg=None):
         self.controller.hide_all()
         self.controller.setInputFormVisible(True)
         self.controller.dispose()

@@ -11,9 +11,11 @@ import scaner.connector
 
 
 class MainWindow(QWidget):
-    def __init__(self, width, height) -> None:
+    def __init__(self) -> None:
         super().__init__()
+        
         desktop = QDesktopWidget()
+        self.main_monitor = desktop.screenGeometry(0)
         target = 0
         if desktop.screenCount() > 1:
             target = 1
@@ -21,7 +23,7 @@ class MainWindow(QWidget):
 
         self.setWindowTitle('Visual Tester')
         self.move(0, 0)
-        self.resize(width, height)
+        self.resize(self.main_monitor.width(), self.main_monitor.height())
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.image = FlexibleCircle(self)
@@ -141,19 +143,23 @@ class FakeKeyEvent:
 class FlexibleCircle(QWidget):
     def __init__(self, parent: MainWindow, radius: int = 127) -> None:
         super().__init__(parent)
+        self.parent_window = parent
         self.color = QColor(255, 255, 255, 255)
         self.radius = 0
         self.setSize(radius)
-        self.setPosition(
-            parent.width() // 2, 
-            parent.height() // 2 - 200
-        )
+        self.resetPosition()
         self.setVisible(False)
 
         self.blink_timer = QTimer()
         self.__blink_show = True
         self.blink_timer.timeout.connect(self.blink)
     
+    def resetPosition(self):
+        self.setPosition(
+            self.parent_window.width() // 2, 
+            self.parent_window.height() // 2 - 200
+        )
+
     def setSize(self, radius: int):
         prev_radius = self.radius
         self.radius = radius
@@ -199,25 +205,3 @@ class FlexibleCircle(QWidget):
         # self.setVisible(False)
         # self.setPixmap(QPixmap('images/circle.png').scaledToWidth(64))
         # self.setGeometry(QRect(0, 0, 64, 64))
-
-
-class ServeyWindow(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.widgets: Dict[str, QWidget] = {}
-        self.widgets['VarTextbox'] = QLineEdit(self)
-        self.widgets['VarTextbox'].setPlaceholderText('Input variables...')
-        self.widgets[''] = QPushButton('Start', self)
-        self.widgets[''] = QPushButton('Manual Mode', self)
-
-        vlayout = QVBoxLayout()
-        vlayout.addStretch(1)
-        for widget in self.widgets.values():
-            vlayout.addWidget(widget)
-            vlayout.addSpacing(16)
-        vlayout.addStretch(1)
-        hlayout = QHBoxLayout()
-        hlayout.addStretch(2)
-        hlayout.addLayout(vlayout)
-        hlayout.addStretch(2)

@@ -8,7 +8,7 @@
             "name": "Debug Project",
             "type": "python",
             "request": "launch",
-            "program": "new_main.py",
+            "program": "main.py",
             "console": "integratedTerminal"
         },
         {
