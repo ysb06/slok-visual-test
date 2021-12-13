@@ -8,8 +8,8 @@ import time
 
 
 class QConnector(QThread):
-    onPress = pyqtSignal()
-    onRelease = pyqtSignal()
+    onPress = pyqtSignal(int)
+    onRelease = pyqtSignal(int)
 
     def __init__(self, parent=None, timeout=3, debug=False) -> None:
         super().__init__(parent=parent)

@@ -69,11 +69,11 @@ class UIController:
 
     def show_image_by_type(self, exp_type: ExperimentType, value: Union[int, float]):
         if exp_type == ExperimentType.LUMINANCE:
-            self.show_image(brightness=value, size=128)
+            self.show_image(brightness=value, size=160)
         elif exp_type == ExperimentType.SIZE:
-            self.show_image(size=value)
+            self.show_image(brightness=127, size=value)
         elif exp_type == ExperimentType.BLINK:
-            self.show_image(frequency=value)
+            self.show_image(brightness=127, frequency=value)
         else:
             self.show_image()
 

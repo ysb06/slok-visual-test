@@ -157,7 +157,7 @@ class FlexibleCircle(QWidget):
     def resetPosition(self):
         self.setPosition(
             self.parent_window.width() // 2, 
-            self.parent_window.height() // 2 - 200
+            self.parent_window.height() // 2
         )
 
     def setSize(self, radius: int):

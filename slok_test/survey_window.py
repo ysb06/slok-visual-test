@@ -29,6 +29,20 @@ class SurveyWindow(QWidget):
 
         vlayout = QVBoxLayout()
         vlayout.addSpacing(32)
+        
+        hlayout = QHBoxLayout()
+        hlayout.addSpacing(16)
+        label = QLabel('OFF', self)
+        label.setFixedWidth(100)
+        hlayout.addWidget(label)
+        button = QPushButton('0', self)
+        button.clicked.connect(self.controller.hide_all)
+        hlayout.addWidget(button)
+        hlayout.addStretch(1)
+        hlayout.addSpacing(16)
+        vlayout.addLayout(hlayout)
+        vlayout.addSpacing(32)
+
         for test_name, test_set_values in zip(test_set[0], test_set[1]):
             hlayout = QHBoxLayout()
             hlayout.addSpacing(16)
