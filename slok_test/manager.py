@@ -27,6 +27,7 @@ class ExperimentPhase(Enum):
 
 def initialize_experiment(sender: MainWindow, text: str = 'None', mode: str = 'Standard'):
     if mode == 'Standard':
+        print('Test Mode')
         Experiment(sender, text)
     else:
         print('Survey Mode')

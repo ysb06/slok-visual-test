@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Callable, List, Tuple
+from typing import Callable, List, Tuple, Union
 
 from PyQt5.QtCore import QPoint, QRect, Qt, QTime, QTimer
 from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPainter,
@@ -12,15 +12,20 @@ from slok_test.controller import UIController
 
 class SurveyWindow(QWidget):
     def __init__(
-            self, 
-            controller: UIController,
-            test_set: Tuple[List[Enum], List[List]]
-        ) -> None:
+        self,
+        controller: UIController,
+        test_set: Tuple[List[Enum], List[List]]
+    ) -> None:
         super().__init__()
         self.onClose: List[Callable[[], None]] = []
 
         self.setWindowTitle('Survey Mode')
         self.controller = controller
+
+        self.last_button: Union[SurveyTestButton, None] = None
+        self.before_last_button: Union[SurveyTestButton, None] = None
+        self.need_to_run_last = False
+        controller.target.events.onKeyPress.append(self.run_last_action)
 
         vlayout = QVBoxLayout()
         vlayout.addSpacing(32)
@@ -32,8 +37,7 @@ class SurveyWindow(QWidget):
             label.setFixedWidth(100)
             hlayout.addWidget(label)
             for item in test_set_values:
-                print(test_name, item)
-                button = UIControllerButton(self, controller, test_name, item)
+                button = SurveyTestButton(self, controller, test_name, item)
                 hlayout.addWidget(button)
             hlayout.addStretch(1)
             hlayout.addSpacing(16)
@@ -47,13 +51,34 @@ class SurveyWindow(QWidget):
         for callback in self.onClose:
             callback()
 
+    def run_last_action(self, arg=None):
+        if self.last_button is not None and self.before_last_button is not None:
+            if self.need_to_run_last:
+                self.need_to_run_last = False
+                self.last_button.run_only_action()
+            else:
+                self.need_to_run_last = True
+                self.before_last_button.run_only_action()
 
-class UIControllerButton(QPushButton):
-    def __init__(self, parent: QWidget, controller: UIController, type: Enum, value) -> None:
+
+class SurveyTestButton(QPushButton):
+    def __init__(self, parent: SurveyWindow, controller: UIController, type: Enum, value) -> None:
         super().__init__(str(value), parent)
+        self.parent_window = parent
+
         self.controller = controller
         self.type = type
         self.value = value
 
-        self.clicked.connect(lambda: self.controller.show_image_by_type(self.type, self.value))
-        self.clicked.connect(lambda: print(f'{self.type} [{self.value}]'))
+        self.clicked.connect(self.run_action)
+
+    def run_action(self):
+        self.controller.show_image_by_type(self.type, self.value)
+        print(f'{self.type} [{self.value}]')
+
+        self.parent_window.before_last_button = self.parent_window.last_button
+        self.parent_window.last_button = self
+    
+    def run_only_action(self):
+        self.controller.show_image_by_type(self.type, self.value)
+        print(f'{self.type} [{self.value}]')
