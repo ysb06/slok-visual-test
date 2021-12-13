@@ -13,7 +13,7 @@ MAX_TEST_COUNT = 10
 TEST_LIST = [
     ExperimentType.LUMINANCE,
     ExperimentType.SIZE,
-    ExperimentType.BLINK
+    # ExperimentType.BLINK
 ]
 
 # TEST_LIST = [
