@@ -58,7 +58,7 @@ class UIController:
     def end_wait(self):
         self.target.timer.stop()
     
-    def show_image(self, size: int = 128, brightness: int = 127, frequency: float = 0):
+    def show_image(self, size: int = 128, brightness: int = 63, frequency: float = 0):
         self.target.image.setVisible(True)
         self.target.image.setSize(size)
         self.target.image.setBrightness(brightness)
@@ -71,9 +71,9 @@ class UIController:
         if exp_type == ExperimentType.LUMINANCE:
             self.show_image(brightness=value, size=160)
         elif exp_type == ExperimentType.SIZE:
-            self.show_image(brightness=127, size=value)
+            self.show_image(brightness=63, size=value)
         elif exp_type == ExperimentType.BLINK:
-            self.show_image(brightness=127, frequency=value)
+            self.show_image(brightness=63, frequency=value)
         else:
             self.show_image()
 

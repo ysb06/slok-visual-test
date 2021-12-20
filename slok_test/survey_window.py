@@ -37,6 +37,7 @@ class SurveyWindow(QWidget):
         hlayout.addWidget(label)
         button = QPushButton('0', self)
         button.clicked.connect(self.controller.hide_all)
+        button.clicked.connect(lambda: print('Off all'))
         hlayout.addWidget(button)
         hlayout.addStretch(1)
         hlayout.addSpacing(16)

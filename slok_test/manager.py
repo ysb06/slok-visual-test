@@ -131,7 +131,7 @@ class Experiment:
 
     def reset_test_set(self):
         self.controller.hide_all()
-        self.controller.setGuideText(True, 'Ready')
+        self.controller.setGuideText(True, '')
 
         self.info.try_count = 0
 
@@ -178,8 +178,8 @@ class Experiment:
         interval_time = end_time - self.start_time
         self.info.record_time = end_time
         self.info.last_reaction_time = interval_time
-        print(
-            f"Exp {self.info.exp_count} - Try {self.info.try_count}: {interval_time / 1000000000} sec")
+        self.info.value = self.test_value
+        print(f"Exp {self.info.exp_count} [{self.info.value}] Try {self.info.try_count}: {self.info.last_reaction_time / 1000000000} sec")
         record(self.info)
 
         self.controller.hide_all()
@@ -205,7 +205,7 @@ class Survey:
         self.subwindow = SurveyWindow(
             self.controller,
             (
-                TEST_LIST,
+                SURVEY_LIST,
                 [
                     LUMINANCE_TEST_SET,
                     SIZE_TEST_SET,

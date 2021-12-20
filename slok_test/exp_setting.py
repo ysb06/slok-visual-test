@@ -8,12 +8,18 @@ class ExperimentType(Enum):
     BLINK = 3
 
 
-MAX_TEST_COUNT = 10
+MAX_TEST_COUNT = 16
 
 TEST_LIST = [
     ExperimentType.LUMINANCE,
     ExperimentType.SIZE,
     # ExperimentType.BLINK
+]
+
+SURVEY_LIST = [
+    ExperimentType.LUMINANCE,
+    ExperimentType.SIZE,
+    ExperimentType.BLINK
 ]
 
 # TEST_LIST = [
@@ -26,7 +32,7 @@ LUMINANCE_TEST_SET = [15, 95, 175, 255]     # 0.7 lux, 1.1 lux, 2.1 lux, 3.8 lux
                                             # NHTSA 기준
                                             # 최소 0.68도 tan = 0.012, 최적 1.43도 tan = 0.025, 시뮬레이터 눈과 모니터 사이 거리 63cm
 SIZE_TEST_SET = [27, 57, 120, 252]          # 0.8cm (최소), 1.6cm (최적, x2.1), 3.3cm (x2.1), 6.9cm (x2.1)
-BLINK_TEST_SET = [1, 2, 3]
+BLINK_TEST_SET = [1, 2, 3, 4]
 
 STAND_BY_TIME = 1000 * 7
 STAND_BY_TIME_RANDOM_ADJUSTMENT = 1000 * 3

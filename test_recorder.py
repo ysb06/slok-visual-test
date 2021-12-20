@@ -10,6 +10,7 @@ class ExperimentInfo:
         self.try_count = 0
         self.record_time = 0
         self.last_reaction_time = 0
+        self.value = 0
 
 
 target_book: Workbook = None
@@ -25,9 +26,9 @@ def record(info: ExperimentInfo):
     if info.name not in target_book.sheetnames:
         target_book.create_sheet(info.name, 0)
         sheet = target_book[info.name]
-        sheet.append(['Name', 'Date Time', 'Experiment', 'Try', 'Time', 'Reaction Interval'])
+        sheet.append(['Name', 'Date Time', 'Experiment', 'Try', 'Time', 'Reaction Interval', 'Value'])
 
     sheet = target_book[info.name]
-    sheet.append([info.name, now.strftime('%Y-%m-%d %H:%M:%S'), info.exp_count, info.try_count, info.record_time, info.last_reaction_time / 1000000000])
+    sheet.append([info.name, now.strftime('%Y-%m-%d %H:%M:%S'), info.exp_count, info.try_count, info.record_time, info.last_reaction_time / 1000000000, info.value])
 
     target_book.save('./result.xlsx')
