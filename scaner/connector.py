@@ -11,7 +11,7 @@ class QConnector(QThread):
     onPress = pyqtSignal(int)
     onRelease = pyqtSignal(int)
 
-    def __init__(self, parent=None, timeout=300, debug=False) -> None:
+    def __init__(self, parent=None, timeout=60, debug=False) -> None:
         super().__init__(parent=parent)
         self.debug = debug
 
@@ -52,8 +52,7 @@ class QConnector(QThread):
         except socket.timeout as e:
             self.activated = False
             print('Check SCANeR state and restart this app.')
-
-        print('\n')
+        
         print('UDP Connector Deactivated')
 
 

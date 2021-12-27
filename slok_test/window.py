@@ -1,8 +1,8 @@
-from typing import Dict, List, Callable, Set
-from PyQt5.QtGui import QCloseEvent, QColor, QKeyEvent, QPaintEvent, QPainter, QPen, QPixmap, QMouseEvent
+from typing import Dict, List, Callable
+from PyQt5.QtGui import QCloseEvent, QColor, QKeyEvent, QPaintEvent, QPainter, QMouseEvent
 
 import yaml
-from PyQt5.QtCore import QPoint, QRect, QTime, QTimer, Qt
+from PyQt5.QtCore import QPoint, QTimer, Qt
 from PyQt5.QtWidgets import (
     QDesktopWidget, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 )

@@ -1,11 +1,8 @@
 from enum import Enum
 from typing import Callable, List, Tuple, Union
 
-from PyQt5.QtCore import QPoint, QRect, Qt, QTime, QTimer
-from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPainter,
-                         QPaintEvent, QPen, QPixmap)
-from PyQt5.QtWidgets import (QDesktopWidget, QHBoxLayout, QLabel, QLineEdit,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from slok_test.controller import UIController
 
